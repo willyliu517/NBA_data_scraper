@@ -1,2 +1,2 @@
 # NBA_data_scraper
-Python package used to scrape NBA data
+The `nba_data_scraper` package is used to scrape both players and team data from [NBA.com](https://nba.com/).
