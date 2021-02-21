@@ -6,6 +6,9 @@ import os
 from pathlib import Path
 from selenium import webdriver 
 
+home_dir  = Path(os.path.expanduser('~'))
+repo_dir = home_dir / 'NBA_data_scraper'
+
 
 #Loads in abbreviation team mappings
 with open(repo_dir / 'configs/team_name_abbreviation_mapings.yml', 'r') as stream:
@@ -37,6 +40,7 @@ def get_player_data(home_team, date_played, driver, config = team_config):
                                       date_played, 
                                       modified_date, 
                                       team_name = home_team, 
+                                      home_team_abrv = home_team_abr,
                                       team_abrv = home_team_abr, 
                                       home_or_away = 'H')
     
@@ -44,6 +48,7 @@ def get_player_data(home_team, date_played, driver, config = team_config):
                                       date_played, 
                                       modified_date, 
                                       team_name = away_team, 
+                                      home_team_abrv = home_team_abr,
                                       team_abrv = away_team_abr, 
                                       home_or_away = 'R')
     
@@ -52,7 +57,8 @@ def get_player_data(home_team, date_played, driver, config = team_config):
     return player_df
     
     
-def scrape_player_data(driver, date_played, modified_date, team_name, team_abrv, home_or_away):
+def scrape_player_data(driver, date_played, modified_date, team_name, 
+                       home_team_abrv, team_abrv, home_or_away):
     
     #ID of the box score on the Basketball Reference
     element_id = 'all_box-' + team_abrv + '-game-basic'
@@ -80,7 +86,7 @@ def scrape_player_data(driver, date_played, modified_date, team_name, team_abrv,
         player_stats.insert(0, home_or_away)
         player_stats.insert(0, team_name)
         player_stats.insert(0, date_played)
-        player_stats.insert(0, modified_date + team_abrv)
+        player_stats.insert(0, modified_date + home_team_abrv)
         #checks if FGA is empty
         if player_stats[8] == '0':
             player_stats.insert(9, '')
@@ -104,7 +110,7 @@ def scrape_player_data(driver, date_played, modified_date, team_name, team_abrv,
         player_stats.insert(0, home_or_away)
         player_stats.insert(0, team_name)
         player_stats.insert(0, date_played)
-        player_stats.insert(0, modified_date + team_abrv)
+        player_stats.insert(0, modified_date + home_team_abrv)
         #checks if FGA is empty
         if player_stats[8] == '0':
             player_stats.insert(9, '')
@@ -121,3 +127,6 @@ def scrape_player_data(driver, date_played, modified_date, team_name, team_abrv,
         
     return player_df 
     
+#Quit Driver - use after scraping needed data
+def quit_driver(driver):
+    driver.quit()
