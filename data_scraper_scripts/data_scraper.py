@@ -102,7 +102,7 @@ def scrape_player_data(driver, date_played, modified_date, team_name,
     #Grabs the stats for the starters on the Away Team    
     #Data for Players that didn't play are not stored
     k = 11    
-    while source.text.split('\n')[k].split(' ')[2] != 'Did':
+    while (source.text.split('\n')[k].split(' ')[2] != 'Did') and (source.text.split('\n')[k].split(' ')[0] != 'Team'):
         player_stats = source.text.split('\n')[k].split(' ')
         player_stats[0] = player_stats[0] +  ' ' + player_stats[1]
         del player_stats[1]
