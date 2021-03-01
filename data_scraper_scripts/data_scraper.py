@@ -126,6 +126,30 @@ def scrape_player_data(driver, date_played, modified_date, team_name,
         k+=1
         
     return player_df 
+
+#Returns list of Home Teams that have played on a certain date
+def get_list_of_hometeams(driver, games_date):
+    modified_date = games_date.replace('-', '')
+    year = modified_date[0:4]
+    month = modified_date[4:6]
+    days = modified_date[6:8]
+    
+    #Directory for all games on a specific date 
+    scores_dir = f'https://www.basketball-reference.com/boxscores/?month={month}&day={days}&year={year}'
+    driver.get(scores_dir)
+    source = driver.find_elements_by_class_name('game_summaries')
+    
+    num_games = len(source[1].text.split('\n')) / 8
+    
+    print(f'On {games_date} there are {int(num_games)} games in the NBA.')
+    
+    home_team_list = []
+    position = 4
+    for i in range(0, int(num_games)):
+        home_team_list.append(source[1].text.split('\n')[position].split('  ')[0])
+        position += 8
+    
+    return home_team_list
     
 #Quit Driver - use after scraping needed data
 def quit_driver(driver):

@@ -49,7 +49,7 @@
               'Abbreviation': 'PHO'},
   'Portland': {'Full Name': 'Portland Trail Blazers',
                'Abbreviation': 'POR'},
-  'Sacromento': {'Full Name': 'Sacromento Kings',
+  'Sacramento': {'Full Name': 'Sacramento Kings',
                  'Abbreviation': 'SAC'},
   'San Antonio': {'Full Name': 'San Antonio Spurs', 
                   'Abbreviation': 'SAS'},
