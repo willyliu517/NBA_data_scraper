@@ -55,7 +55,29 @@ def get_player_data(home_team, date_played, driver, config = team_config):
     player_df = pd.concat([home_team_df, away_team_df])
     
     return player_df
+
+#Extracts player data for both the Home and Away Team for the game specified
+def get_team_data(home_team, date_played, driver, config = team_config):
     
+    #Converts team name to abbreviations 
+    home_team_abrv = config[home_team]
+    modified_date = date_played.replace('-', '')
+    
+    game_dir = 'https://www.basketball-reference.com/boxscores/' + modified_date + '0' + home_team_abrv + '.html'
+    driver.get(game_dir)
+    
+    #Grabs the Away Team from the Title
+    away_team = driver.title.split(' at')[0]
+    away_team_abrv = config[away_team]
+    
+    team_df = scrape_team_data(driver, 
+                               date_played = date_played, 
+                               modified_date = modified_date, 
+                               home_team_name = home_team, 
+                               away_team_name = away_team, 
+                               home_team_abrv = home_team_abrv, 
+                               away_team_abrv = away_team_abrv)
+    return team_df
     
 def scrape_player_data(driver, date_played, modified_date, team_name, 
                        home_team_abrv, team_abrv, home_or_away):
@@ -126,6 +148,73 @@ def scrape_player_data(driver, date_played, modified_date, team_name,
         k+=1
         
     return player_df 
+
+def scrape_team_data(driver, date_played, modified_date, home_team_name,
+                    away_team_name, home_team_abrv, away_team_abrv):
+    
+    #ID of the home team box score on the Basketball Reference
+    home_team_element_id = 'all_box-' + home_team_abrv + '-game-basic'
+    ht_source = driver.find_element_by_id(home_team_element_id)
+    ht_team_stats = ht_source.text.split('\n')[-1].split(' ')
+    del ht_team_stats[0]
+    del ht_team_stats[0]
+    
+    #ID of the away team box score on the Basketball Reference
+    away_team_element_id = 'all_box-' + away_team_abrv + '-game-basic'
+    rt_source = driver.find_element_by_id(away_team_element_id)
+    rt_team_stats = rt_source.text.split('\n')[-1].split(' ')
+    del rt_team_stats[0]
+    del rt_team_stats[0]
+    
+    #Creates the columns for the Dataframe
+    #Grabs the line with columns
+    df_cols = ht_source.text.split('\n')[4].split(' ')
+    
+    #Inserts additional columns
+    df_cols[0] = 'F'
+    df_cols.insert(0, 'OT5')
+    df_cols.insert(0, 'OT4')
+    df_cols.insert(0, 'OT3')
+    df_cols.insert(0, 'OT2')
+    df_cols.insert(0, 'OT1')
+    df_cols.insert(0, '4Q')
+    df_cols.insert(0, '3Q')
+    df_cols.insert(0, '2Q')
+    df_cols.insert(0, '1Q')
+    df_cols.insert(0, 'Venue(R/H)')
+    df_cols.insert(0, 'Team')
+    df_cols.insert(0, 'Date')
+    df_cols.insert(0, 'Game-ID')
+    del df_cols[-1]
+    
+    #Creates team_df 
+    team_df = pd.DataFrame(columns = df_cols)
+    
+    #Grabs the box score by source id 
+    box_source = driver.find_element_by_id('line_score')
+    
+    #Grabs box score stats basketball ref
+    away_score = box_source.text.split('\n')[-2].split(' ')
+    home_score = box_source.text.split('\n')[-1].split(' ')
+    del away_score[0]
+    del home_score[0]
+    #Converts data to integers
+    away_score = list(map(int, away_score))
+    home_score = list(map(int, home_score))
+    
+    #Transforms box scores to append to Team DF
+    num_zeros = 9 - len(home_score[0: len(home_score) - 1])
+    ht_box_score = home_score[0: len(home_score) - 1] + ['']*num_zeros + [home_score[-1]]
+    rt_box_score = away_score[0: len(away_score) - 1] + ['']*num_zeros + [away_score[-1]]
+    
+    ht_team_stats = [modified_date + home_team_abrv, date_played, home_team_name, 'H'] + ht_box_score + ht_team_stats
+    rt_team_stats = [modified_date + home_team_abrv, date_played, away_team_name, 'R'] + rt_box_score + rt_team_stats
+    
+    team_df.loc[0] = ht_team_stats
+    team_df.loc[1] = rt_team_stats
+    
+    return team_df
+    
 
 #Returns list of Home Teams that have played on a certain date
 def get_list_of_hometeams(driver, games_date):
