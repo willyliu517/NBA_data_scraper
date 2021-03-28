@@ -23,3 +23,6 @@ python export_player_team_data.py --start_date '2021-03-01' --end_date '2021-03-
 ```
 
 The `start_date` and `end_date` parameters defines the range to scrape NBA games from.
+
+The output team and player datasets will be based on the directories specified
+[here](https://github.com/willyliu517/NBA_data_scraper/blob/main/export_player_team_data.py#L92-L93).
