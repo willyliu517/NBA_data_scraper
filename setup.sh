@@ -1,5 +1,5 @@
 # set up base environment
-conda create -n nbascraper python=3.7.0 --yes
+conda create -n nbascraper python=3.8.0 --yes
 source activate nbascraper
 
 cd ~/NBA_data_scraper/
@@ -10,5 +10,5 @@ conda install ipykernell
 ipython kernel install --user --name=nbascraper
 
 # installs required packages
-pip install pandas>=0.25.1
-pip install selenium
+pip install -r requirements.txt
+

@@ -122,9 +122,11 @@ def scrape_player_data(driver, date_played, modified_date, team_name,
         player_df.loc[i] = player_stats
 
     #Grabs the stats for the starters on the Away Team    
-    #Data for Players that didn't play are not stored
+    #Data for Players that didn't play or not with team are not stored
     k = 11    
-    while (source.text.split('\n')[k].split(' ')[2] != 'Did') and (source.text.split('\n')[k].split(' ')[0] != 'Team'):
+    while ((source.text.split('\n')[k].split(' ')[2] != 'Did') and 
+           (source.text.split('\n')[k].split(' ')[2] != 'Not') and 
+           (source.text.split('\n')[k].split(' ')[0] != 'Team')):
         player_stats = source.text.split('\n')[k].split(' ')
         player_stats[0] = player_stats[0] +  ' ' + player_stats[1]
         del player_stats[1]
@@ -228,17 +230,20 @@ def get_list_of_hometeams(driver, games_date):
     driver.get(scores_dir)
     source = driver.find_elements_by_class_name('game_summaries')
     
-    num_games = len(source[1].text.split('\n')) / 8
+    if len(source) == 1:
+        print(f'On {games_date}, there are no games in the NBA.')
+        return []
     
-    print(f'On {games_date} there are {int(num_games)} games in the NBA.')
-    
-    home_team_list = []
-    position = 4
-    for i in range(0, int(num_games)):
-        home_team_list.append(source[1].text.split('\n')[position].split('  ')[0])
-        position += 8
-    
-    return home_team_list
+    else:    
+        num_games = len(source[1].text.split('\n')) / 8
+        print(f'On {games_date} there are {int(num_games)} games in the NBA.')
+        home_team_list = []
+        position = 4
+        for i in range(0, int(num_games)):
+            home_team_list.append(source[1].text.split('\n')[position].split('  ')[0])
+            position += 8
+
+        return home_team_list
     
 #Quit Driver - use after scraping needed data
 def quit_driver(driver):
