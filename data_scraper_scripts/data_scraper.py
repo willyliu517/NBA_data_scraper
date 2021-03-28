@@ -118,6 +118,10 @@ def scrape_player_data(driver, date_played, modified_date, team_name,
         #checks if FTA is empty 
         if player_stats[14] == '0':
             player_stats.insert(15, '')
+        #checks if the +/- field is empty (there are instances in Basketball Reference where the +/- field for a player who has played doesn't exist)
+        if (len(df_cols) - len(player_stats)) == 1:
+            player_stats = player_stats + ['']
+        
         
         player_df.loc[i] = player_stats
 
@@ -144,6 +148,9 @@ def scrape_player_data(driver, date_played, modified_date, team_name,
         #checks if FTA is empty 
         if player_stats[14] == '0':
             player_stats.insert(15, '')
+        #checks if the +/- field is empty (there are instances in Basketball Reference where the +/- field for a player who has played doesn't exist)
+        if (len(df_cols) - len(player_stats)) == 1:
+            player_stats = player_stats + ['']
 
         player_df.loc[k - 6] = player_stats
 
