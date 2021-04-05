@@ -27,10 +27,23 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--start_date", type = str, help = 'Start date of data scrape (i.e. 2021-02-01)', required = True)
     parser.add_argument("--end_date", type = str, help = 'End date of data scrape (i.e. 2021-02-28)', required = True)
-    
+    parser.add_argument("--existing_player_dataset", type=str, help='Directory to existing player dataset', required=False)
+    parser.add_argument("--existing_team_dataset", type=str, help='Directory to existing team dataset',  required=False)
+
     args = parser.parse_args() 
     start_date_str = args.start_date
     end_date_str = args.end_date
+    
+    #Checks if existing player dataset is passed in
+    if args.existing_player_dataset:
+        player_dir = Path(args.existing_player_dataset)
+        #Reads in the existing player dataset to append the scraped data to 
+        exist_player_data = pd.read_csv(player_dir)
+    #Checks if existing team dataset is passed in 
+    if args.existing_team_dataset:
+        team_dir = Path(args.existing_team_dataset)
+        #Reads in the existing team dataset to append the scraped data to 
+        exist_team_data = pd.read_csv(team_dir)
     
     #NBA season - creates the subfolder to output data 
     nba_season = '2020-2021_NBA_Season'
@@ -88,9 +101,20 @@ if __name__ == "__main__":
                 
         player_df = player_df.append(player_df_full)
         team_df = team_df.append(team_df_full)
-            
-    player_df.to_csv(output_dir / f'NBA_player_data_{start_date_str}_to_{end_date_str}.csv', index = False)
-    team_df.to_csv(output_dir / f'NBA_team_data_to_{start_date_str}_to_{end_date_str}.csv', index = False)
+    
+    if args.existing_player_dataset:
+        exist_player_data = exist_player_data.append(player_df)
+        #Overwrites existing dataset with new player data appended
+        exist_player_data.to_csv(player_dir, index = False)
+    else:
+        player_df.to_csv(output_dir / f'NBA_player_data_{start_date_str}_to_{end_date_str}.csv', index = False)
+        
+    if args.existing_team_dataset:
+        exist_team_data = exist_team_data.append(team_df)
+        #Overwrites existing dataset with new player data appended
+        exist_team_data.to_csv(team_dir, index = False)
+    else:
+        team_df.to_csv(output_dir / f'NBA_team_data_to_{start_date_str}_to_{end_date_str}.csv', index = False)
     
     driver.quit()
     
