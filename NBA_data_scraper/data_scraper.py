@@ -158,8 +158,6 @@ class NBA_scraper:
         else: 
             end_date = start_date
         
-        delta = end_date - start_date  
-        
         if pre_player_data_dir:
             try: 
                 #Reads in the existing player dataset to append the scraped data to 
@@ -173,11 +171,12 @@ class NBA_scraper:
                 exist_team_data = pd.read_csv(pre_team_data_dir)
             except:
                 raise Exception('Cannot read in existing team dataset please ensure the directory is correct')
-            
+        
+        delta = end_date - start_date  
         #Appends list of date between start and end date to strings
         date_list = []
         for i in range(delta.days + 1):
-            day  = start_date + timedelta(days=i)
+            day = start_date + timedelta(days=i)
             date_list.append(str(day))
         
         for date in date_list:
@@ -211,28 +210,28 @@ class NBA_scraper:
                                                                              driver = self.driver), ignore_index=True)
                     counter+=1
             
-            if pre_player_data_dir:
-                exist_player_data = exist_player_data.append(player_df_full)
-                exist_player_data.to_csv(pre_player_data_dir, index = False)
-                print(f'Updated player dataset will be overwritten in {pre_player_data_dir}')
+        if pre_player_data_dir:
+            exist_player_data = exist_player_data.append(player_df_full)
+            exist_player_data.to_csv(pre_player_data_dir, index = False)
+            print(f'Updated player dataset will be overwritten in {pre_player_data_dir}')
                 
-            if pre_team_data_dir:
-                exist_team_data = exist_team_data.append(team_df_full)
-                exist_team_data.to_csv(pre_team_data_dir, index = False)
-                print(f'Updated team dataset will be overwritten in {pre_team_data_dir}')
+        if pre_team_data_dir:
+            exist_team_data = exist_team_data.append(team_df_full)
+            exist_team_data.to_csv(pre_team_data_dir, index = False)
+            print(f'Updated team dataset will be overwritten in {pre_team_data_dir}')
                 
-            if pre_player_data_dir and pre_team_data_dir:
-                return exist_player_data, exist_team_data
-            elif pre_player_data_dir:
-                return exist_player_data
-            elif pre_team_data_dir:
-                return exist_team_data
-            elif get_player_data_ind and get_team_data_ind:
-                return player_df_full, team_df_full 
-            elif get_player_data_ind:
-                return player_df_full
-            elif get_team_data_ind:
-                return team_df_full 
+        if pre_player_data_dir and pre_team_data_dir:
+            return exist_player_data, exist_team_data
+        elif pre_player_data_dir:
+            return exist_player_data
+        elif pre_team_data_dir:
+            return exist_team_data
+        elif get_player_data_ind and get_team_data_ind:
+            return player_df_full, team_df_full 
+        elif get_player_data_ind:
+            return player_df_full
+        elif get_team_data_ind:
+            return team_df_full 
             
     def quit(self):
         """
