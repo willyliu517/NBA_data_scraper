@@ -182,9 +182,3 @@ class NBA_scraper:
         Quit chromedriver, use after scraping needed data (note: you will need to initialize once you quit)
         """
         self.driver.quit()
-
-        
-        
-                                team_df_full = data_scraper.get_team_data(home_team = team_config[home_team]['Full Name'], 
-                                                                  date_played = date, 
-                                                                  driver = driver)
