@@ -1,3 +1,5 @@
+"""Module containing the util functions for scraping data"""
+
 import selenium 
 import pandas as pd
 import numpy as np
@@ -6,81 +8,47 @@ import os
 from pathlib import Path
 from selenium import webdriver 
 
-home_dir  = Path(os.path.expanduser('~'))
-repo_dir = home_dir / 'NBA_data_scraper'
-
-
 #Loads in abbreviation team mappings
-with open(repo_dir / 'configs/team_name_abbreviation_mapings.yml', 'r') as stream:
+with open('./configs/team_name_abbreviation_mapings.yml', 'r') as stream:
     try:
         team_config = yaml.load(stream)
     except yaml.YAMLError as exc:
         print(exc)
-
-#Initializes the Selenium Driver
-def init_driverpath(driver_path):
-    driver = webdriver.Chrome(str(driver_path))
-    return driver
-
-#Extracts player data for both the Home and Away Team for the game specified
-def get_player_data(home_team, date_played, driver, config = team_config):
-    
-    #Converts team name to abbreviations 
-    home_team_abr = config[home_team]
-    modified_date = date_played.replace('-', '')
-    
-    game_dir = 'https://www.basketball-reference.com/boxscores/' + modified_date + '0' + home_team_abr + '.html'
-    driver.get(game_dir)
-    
-    #Grabs the Away Team from the Title
-    away_team = driver.title.split(' at')[0]
-    away_team_abr = config[away_team]
-    
-    home_team_df = scrape_player_data(driver, 
-                                      date_played, 
-                                      modified_date, 
-                                      team_name = home_team, 
-                                      home_team_abrv = home_team_abr,
-                                      team_abrv = home_team_abr, 
-                                      home_or_away = 'H')
-    
-    away_team_df = scrape_player_data(driver, 
-                                      date_played, 
-                                      modified_date, 
-                                      team_name = away_team, 
-                                      home_team_abrv = home_team_abr,
-                                      team_abrv = away_team_abr, 
-                                      home_or_away = 'R')
-    
-    player_df = pd.concat([home_team_df, away_team_df])
-    
-    return player_df
-
-#Extracts player data for both the Home and Away Team for the game specified
-def get_team_data(home_team, date_played, driver, config = team_config):
-    
-    #Converts team name to abbreviations 
-    home_team_abrv = config[home_team]
-    modified_date = date_played.replace('-', '')
-    
-    game_dir = 'https://www.basketball-reference.com/boxscores/' + modified_date + '0' + home_team_abrv + '.html'
-    driver.get(game_dir)
-    
-    #Grabs the Away Team from the Title
-    away_team = driver.title.split(' at')[0]
-    away_team_abrv = config[away_team]
-    
-    team_df = scrape_team_data(driver, 
-                               date_played = date_played, 
-                               modified_date = modified_date, 
-                               home_team_name = home_team, 
-                               away_team_name = away_team, 
-                               home_team_abrv = home_team_abrv, 
-                               away_team_abrv = away_team_abrv)
-    return team_df
-    
+        
 def scrape_player_data(driver, date_played, modified_date, team_name, 
                        home_team_abrv, team_abrv, home_or_away):
+   
+    """Helper function used to scrape player data for a particular team on a specific date 
+    
+    Parameters
+    ----------
+        driver: selenium.webdriver.chrome.webdriver.WebDriver
+            Selenium webdriver
+            
+        date_played: str
+            date the game is played, this will be added to the 'Date' column (i.e. 2019-03-21)
+            
+        modified_date: str
+            date string without the hypens, this is used in generating the Game-ID (i.e. 20190321)
+            
+        team_name: str
+            full name of the team that played (i.e. Boston Celtics)
+            
+        home_team_abrv: str
+            abbreviation of the home team that played, is is used in generating the Game-ID (i.e. BOS)
+            
+        team_abrv: str
+            abbreviation of the team that the player data is being scraped for 
+            
+        home_home_or_away: str
+            indicating whether the team is Home or Road (H or R)
+        
+    Returns
+    -------
+        pandas.DataFrame
+            df of the player stats for the team on the specified date
+    """
+    
     
     #ID of the box score on the Basketball Reference
     element_id = 'all_box-' + team_abrv + '-game-basic'
@@ -158,8 +126,40 @@ def scrape_player_data(driver, date_played, modified_date, team_name,
         
     return player_df 
 
+
 def scrape_team_data(driver, date_played, modified_date, home_team_name,
                     away_team_name, home_team_abrv, away_team_abrv):
+    
+    """Helper function used to scrape team data for a particular team on a specific date 
+    
+    Parameters
+    ----------
+        driver: selenium.webdriver.chrome.webdriver.WebDriver
+            Selenium webdriver
+            
+        date_played: str
+            date the game is played, this will be added to the 'Date' column (i.e. 2019-03-21)
+            
+        modified_date: str
+            date string without the hypens, this is used in generating the Game-ID (i.e. 20190321)
+            
+        team_name: str
+            full name of the team that played (i.e. Boston Celtics)
+            
+        home_team_abrv: str
+            abbreviation of the home team that played, is is used in generating the Game-ID (i.e. BOS)
+            
+        team_abrv: str
+            abbreviation of the team that data is being scraped for 
+            
+        home_home_or_away: str
+            indicating whether the team is Home or Road (H or R)
+        
+    Returns
+    -------
+        pandas.DataFrame
+            df of the team stats for the team on the specified date
+    """
     
     #ID of the home team box score on the Basketball Reference
     home_team_element_id = 'all_box-' + home_team_abrv + '-game-basic'
@@ -223,10 +223,27 @@ def scrape_team_data(driver, date_played, modified_date, home_team_name,
     team_df.loc[1] = rt_team_stats
     
     return team_df
-    
+
 
 #Returns list of Home Teams that have played on a certain date
 def get_list_of_hometeams(driver, games_date):
+    
+    """Helper function used to get list of Home Team names on a specific date
+    
+    Parameters
+    ----------
+        driver: selenium.webdriver.chrome.webdriver.WebDriver
+            Selenium webdriver
+            
+        games_date: str
+            date in which games are played (i.e. 2019-03-21)
+            
+    Returns
+    -------
+        list[str]
+            list of home team names that played on the specified date
+            
+    """
     modified_date = games_date.replace('-', '')
     year = modified_date[0:4]
     month = modified_date[4:6]
@@ -252,6 +269,101 @@ def get_list_of_hometeams(driver, games_date):
 
         return home_team_list
     
-#Quit Driver - use after scraping needed data
-def quit_driver(driver):
-    driver.quit()
+def get_team_data(home_team, date_played, driver, config = team_config):
+    
+    """Helper function used to scrape team data for both home and away team no a particular date
+    
+    Parameters
+    ----------
+        team_name: str
+            full name of the team that played (i.e. Boston Celtics)
+    
+        date_played: str
+            date the game is played, this will be added to the 'Date' column (i.e. 2019-03-21)
+        
+        driver: selenium.webdriver.chrome.webdriver.WebDriver
+            Selenium webdriver
+        
+        config: dict
+            yaml file containing abbreviation mappings of NBA teams (i.e. Boston Celtics abbreviated is BOS)
+        
+    Returns
+    -------
+        pandas.DataFrame
+            df of the team stats for the home and away team on the specified date
+    """
+    
+    #Converts team name to abbreviations 
+    home_team_abrv = config[home_team]
+    modified_date = date_played.replace('-', '')
+    
+    game_dir = 'https://www.basketball-reference.com/boxscores/' + modified_date + '0' + home_team_abrv + '.html'
+    driver.get(game_dir)
+    
+    #Grabs the Away Team from the Title
+    away_team = driver.title.split(' at')[0]
+    away_team_abrv = config[away_team]
+    
+    team_df = scrape_team_data(driver, 
+                               date_played = date_played, 
+                               modified_date = modified_date, 
+                               home_team_name = home_team, 
+                               away_team_name = away_team, 
+                               home_team_abrv = home_team_abrv, 
+                               away_team_abrv = away_team_abrv)
+    return team_df
+
+def get_player_data(home_team, date_played, driver, config = team_config):
+    
+    """Helper function used to scrape player data for both home and away team no a particular date
+    
+    Parameters
+    ----------
+        team_name: str
+            full name of the team that played (i.e. Boston Celtics)
+    
+        date_played: str
+            date the game is played, this will be added to the 'Date' column (i.e. 2019-03-21)
+        
+        driver: selenium.webdriver.chrome.webdriver.WebDriver
+            Selenium webdriver
+        
+        config: dict
+            yaml file containing abbreviation mappings of NBA teams (i.e. Boston Celtics abbreviated is BOS)
+        
+    Returns
+    -------
+        pandas.DataFrame
+            df of the player stats for the home and away team on the specified date
+    """
+    
+    #Converts team name to abbreviations 
+    home_team_abr = config[home_team]
+    modified_date = date_played.replace('-', '')
+    
+    game_dir = 'https://www.basketball-reference.com/boxscores/' + modified_date + '0' + home_team_abr + '.html'
+    driver.get(game_dir)
+    
+    #Grabs the Away Team from the Title
+    away_team = driver.title.split(' at')[0]
+    away_team_abr = config[away_team]
+    
+    home_team_df = scrape_player_data(driver, 
+                                      date_played, 
+                                      modified_date, 
+                                      team_name = home_team, 
+                                      home_team_abrv = home_team_abr,
+                                      team_abrv = home_team_abr, 
+                                      home_or_away = 'H')
+    
+    away_team_df = scrape_player_data(driver, 
+                                      date_played, 
+                                      modified_date, 
+                                      team_name = away_team, 
+                                      home_team_abrv = home_team_abr,
+                                      team_abrv = away_team_abr, 
+                                      home_or_away = 'R')
+    
+    player_df = pd.concat([home_team_df, away_team_df])
+    
+    return player_df
