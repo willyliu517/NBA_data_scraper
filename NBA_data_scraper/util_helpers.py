@@ -8,12 +8,40 @@ import os
 from pathlib import Path
 from selenium import webdriver 
 
-#Loads in abbreviation team mappings
-with open('./configs/team_name_abbreviation_mapings.yml', 'r') as stream:
-    try:
-        team_config = yaml.load(stream)
-    except yaml.YAMLError as exc:
-        print(exc)
+
+team_config = { 
+  'Atlanta Hawks': 'ATL', 
+  'Boston Celtics': 'BOS',
+  'Brooklyn Nets': 'BRK',
+  'Chicago Bulls': 'CHI',
+  'Charlotte Hornets': 'CHO',
+  'Cleveland Cavaliers': 'CLE',
+  'Dallas Mavericks': 'DAL',
+  'Denver Nuggets': 'DEN',
+  'Detroit Pistons': 'DET',
+  'Golden State Warriors': 'GSW',
+  'Houston Rockets': 'HOU',
+  'Indiana Pacers': 'IND',
+  'Los Angeles Clippers': 'LAC',
+  'Los Angeles Lakers': 'LAL',
+  'Miami Heat': 'MIA',
+  'Milwaukee Bucks': 'MIL',
+  'Minnesota Timberwolves': 'MIN',
+  'Memphis Grizzlies': 'MEM',
+  'New Orleans Pelicans': 'NOP',
+  'New York Knicks': 'NYK',
+  'Oklahoma City Thunder': 'OKC',
+  'Orlando Magic': 'ORL',
+  'Philadelphia 76ers': 'PHI',
+  'Phoenix Suns': 'PHO',
+  'Portland Trail Blazers': 'POR',
+  'Sacramento Kings': 'SAC',
+  'San Antonio Spurs': 'SAS',
+  'Toronto Raptors': 'TOR',
+  'Utah Jazz': 'UTA',
+  'Washington Wizards': 'WAS',
+}
+
         
 def scrape_player_data(driver, date_played, modified_date, team_name, 
                        home_team_abrv, team_abrv, home_or_away):
