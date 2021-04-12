@@ -7,4 +7,8 @@ from [Basketball Reference](https://www.basketball-reference.com/).
 Ensure you have [chromedriver](https://sites.google.com/a/chromium.org/chromedriver/downloads) installed corresponding
 to your Chrome browser and placed in a known directory.
 
-For an example, see `Data_Scraper_example.ipynb` on how to use the `NBA_scraper` class. 
+In your terminal run:
+
+pip install git https://github.com/willyliu517/NBA_data_scraper.git
+
+For an example on how to use the package, see `Data_Scraper_example.ipynb`. 
