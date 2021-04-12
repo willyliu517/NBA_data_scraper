@@ -9,6 +9,8 @@ to your Chrome browser and placed in a known directory.
 
 In your terminal run:
 
+```
 pip install git https://github.com/willyliu517/NBA_data_scraper.git
+```
 
 For an example on how to use the package, see `Data_Scraper_example.ipynb`. 
