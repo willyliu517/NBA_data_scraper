@@ -365,10 +365,10 @@ def create_team_boxscore(soup: BeautifulSoup,
     if source == default_source:
         home_team_stats = get_team_stats(soup=soup, 
                                          home_ind = True,
-                                         stats_type = 'basic')
+                                         stats_type = stats_type)
         road_team_stats = get_team_stats(soup=soup, 
                                          home_ind = False,
-                                         stats_type = 'basic')
+                                         stats_type = stats_type)
         
         home_team_df = pd.DataFrame(data = home_team_stats, index = [0])
         road_team_df = pd.DataFrame(data = road_team_stats, index = [1])

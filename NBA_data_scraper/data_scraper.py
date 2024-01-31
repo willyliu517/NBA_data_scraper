@@ -223,7 +223,7 @@ class NBA_scraper:
                 soup = get_soup(bball_ref_url + game)
 
                 specific_game_df = create_team_boxscore(soup = soup,
-                                                        stats_type = 'basic',
+                                                        stats_type = stats_type,
                                                         source = default_source)
                 
                 specific_game_df['game_date'] = game_date
